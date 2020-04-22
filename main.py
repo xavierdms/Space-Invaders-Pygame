@@ -58,15 +58,21 @@ bullet_state = "ready"
 # Score
 
 score_value = 0
-font = pygame.font.Font('freesansbold.ttf', 32)
+high_scores = []
+level_value = 1
+level_up_value = ""
+font = pygame.font.Font('freesansbold.ttf', 20)
 
-textX = 10
-testY = 10
+scoreX = 10
+scoreY = 10
+levelX = 10
+levelY = 40
 
 # Game Over
 over_font = pygame.font.Font('freesansbold.ttf', 64)
+level_font = pygame.font.Font('freesansbold.ttf', 20)
 
-
+# Starter code functions from forked project
 def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
     screen.blit(score, (x, y))
@@ -99,6 +105,17 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
         return False
 
 
+# Added functions
+
+def show_level(x, y):
+    level = font.render("Level: " + str(level_value), True, (255, 255, 255))
+    screen.blit(level, (x, y))
+
+def level_up_text(x, y):
+    level_text = font.render(level_up_value, True,  (255, 255, 0))
+    screen.blit(level_text, (x, y))
+  
+
 # Game Loop
 running = True
 while running:
@@ -107,9 +124,31 @@ while running:
     screen.fill((0, 0, 0))
     # Background Image
     screen.blit(background, (0, 0))
+
+    # if player levels up
+    if score_value < 10:
+        level_value = 1
+    elif score_value <= 20:
+        level_value = 2
+    elif score_value <= 30:
+        level_value = 3
+    elif score_value <= 40:
+        level_value = 4
+
+    if (score_value >= 10 and score_value <= 12):
+        level_up_value = "LEVEL UP!"
+    elif (score_value >= 20 and score_value <= 22):
+        level_up_value = "LEVEL UP!"
+    elif (score_value >= 30 and score_value <= 32):
+        level_up_value = "LEVEL UP!"
+    else:
+        level_up_value = ""
+
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+                
 
         # if keystroke is pressed check whether its right or left
         if event.type == pygame.KEYDOWN:
@@ -150,11 +189,26 @@ while running:
 
         enemyX[i] += enemyX_change[i]
         if enemyX[i] <= 0:
-            enemyX_change[i] = 4
+            if score_value < 10:
+                enemyX_change[i] = 4
+            elif score_value <= 20:
+                enemyX_change[i] = 5
+            elif score_value <= 30:
+                enemyX_change[i] = 6
+            else:
+                enemyX_change[i] = 7
             enemyY[i] += enemyY_change[i]
         elif enemyX[i] >= 736:
-            enemyX_change[i] = -4
+            if score_value < 10:
+                enemyX_change[i] = -4
+            elif score_value <= 20:
+                enemyX_change[i] = -5
+            elif score_value <= 30:
+                enemyX_change[i] = -6
+            else:
+                enemyX_change[i] = -7
             enemyY[i] += enemyY_change[i]
+        
 
         # Collision
         collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
@@ -179,5 +233,7 @@ while running:
         bulletY -= bulletY_change
 
     player(playerX, playerY)
-    show_score(textX, testY)
+    show_score(scoreX, scoreY)
+    show_level(levelX, levelY)
+    level_up_text(levelX + 100, levelY)
     pygame.display.update()
