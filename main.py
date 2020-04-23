@@ -4,6 +4,7 @@ import random
 import pygame
 from pygame import mixer
 
+
 # Intialize the pygame
 pygame.init()
 
@@ -58,10 +59,10 @@ bullet_state = "ready"
 # Score
 
 score_value = 0
-high_scores = []
 level_value = 1
 level_up_value = ""
 font = pygame.font.Font('freesansbold.ttf', 20)
+game_over = False
 
 scoreX = 10
 scoreY = 10
@@ -70,7 +71,7 @@ levelY = 40
 
 # Game Over
 over_font = pygame.font.Font('freesansbold.ttf', 64)
-level_font = pygame.font.Font('freesansbold.ttf', 20)
+menu_font = pygame.font.Font('freesansbold.ttf', 48, background=(255, 255, 255))
 
 # Starter code functions from forked project
 def show_score(x, y):
@@ -114,16 +115,79 @@ def show_level(x, y):
 def level_up_text(x, y):
     level_text = font.render(level_up_value, True,  (255, 255, 0))
     screen.blit(level_text, (x, y))
-  
+
+
+# Pause Loop
+
+def show_pause():
+    paused = True
+    while paused:
+        # RGB = Red, Green, Blue
+        screen.fill((0, 0, 0))
+        # Background Image
+        screen.blit(background, (0, 0))
+        pause_title = menu_font.render("PAUSED", True,  (255, 255, 0))
+        pauseRect = pause_title.get_rect()
+        pauseRect.centerx = screen.get_rect().centerx
+        pauseRect.centery = screen.get_rect().centery - 50
+        screen.blit(pause_title, pauseRect)
+
+        high_title = menu_font.render("HIGH SCORES", True,  (255, 255, 255))
+        highRect = high_title.get_rect()
+        highRect.centerx = screen.get_rect().centerx
+        highRect.centery = screen.get_rect().centery + 50
+        screen.blit(high_title, highRect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    paused = False
+                    break
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mpos = pygame.mouse.get_pos()
+                
+                if highRect.collidepoint(mpos):
+                    show_high_scores_menu()
+                    break
+
+        pygame.display.update()
+
+# High Scores Loop
+
+def show_high_scores_menu():
+    high_scores_menu = True
+    while high_scores_menu:
+        # RGB = Red, Green, Blue
+        screen.fill((0, 0, 0))
+        # Background Image
+        screen.blit(background, (0, 0))
+        high_title = menu_font.render("HIGH SCORES", True,  (255, 255, 0))
+        highRect = high_title.get_rect()
+        highRect.centerx = screen.get_rect().centerx
+        highRect.centery = 100
+        screen.blit(high_title, highRect)
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    high_scores_menu = False
+                    show_pause()
+                    break
+
+        pygame.display.update()
+
 
 # Game Loop
+
 running = True
 while running:
+
 
     # RGB = Red, Green, Blue
     screen.fill((0, 0, 0))
     # Background Image
     screen.blit(background, (0, 0))
+
 
     # if player levels up
     if score_value < 10:
@@ -163,6 +227,10 @@ while running:
                     # Get the current x cordinate of the spaceship
                     bulletX = playerX
                     fire_bullet(bulletX, bulletY)
+            if event.key == pygame.K_ESCAPE:
+                    show_pause()
+            
+
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -182,11 +250,12 @@ while running:
 
         # Game Over
         if enemyY[i] > 440:
+            game_over = True
             for j in range(num_of_enemies):
                 enemyY[j] = 2000
             game_over_text()
             break
-
+        
         enemyX[i] += enemyX_change[i]
         if enemyX[i] <= 0:
             if score_value < 10:
@@ -236,4 +305,7 @@ while running:
     show_score(scoreX, scoreY)
     show_level(levelX, levelY)
     level_up_text(levelX + 100, levelY)
+
+    
     pygame.display.update()
+
