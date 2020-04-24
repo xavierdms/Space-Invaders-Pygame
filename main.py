@@ -1,5 +1,6 @@
 import math
 import random
+import csv
 
 import pygame
 from pygame import mixer
@@ -71,7 +72,8 @@ levelY = 40
 
 # Game Over
 over_font = pygame.font.Font('freesansbold.ttf', 64)
-menu_font = pygame.font.Font('freesansbold.ttf', 48, background=(255, 255, 255))
+menu_font = pygame.font.Font('freesansbold.ttf', 48)
+scores_font = pygame.font.Font('freesansbold.ttf', 45)
 
 # Starter code functions from forked project
 def show_score(x, y):
@@ -166,6 +168,41 @@ def show_high_scores_menu():
         highRect.centerx = screen.get_rect().centerx
         highRect.centery = 100
         screen.blit(high_title, highRect)
+
+        high_scores = []
+        names = []
+
+        with open('high_scores.csv') as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                high_scores.append(row[0])
+                names.append(row[1])
+        
+        score1 = scores_font.render(high_scores[0] + " : " + names[0], True, (255, 255, 255))
+        score1Rect = score1.get_rect()
+        score1Rect.centerx = screen.get_rect().centerx
+        score1Rect.centery = 250
+        screen.blit(score1, score1Rect)
+        score2 = scores_font.render(high_scores[1] + " : " + names[1], True, (255, 255, 255))
+        score2Rect = score1.get_rect()
+        score2Rect.centerx = screen.get_rect().centerx
+        score2Rect.centery = 300
+        screen.blit(score2, score2Rect)
+        score3 = scores_font.render(high_scores[2] + " : " + names[2], True, (255, 255, 255))
+        score3Rect = score3.get_rect()
+        score3Rect.centerx = screen.get_rect().centerx
+        score3Rect.centery = 350
+        screen.blit(score3, score3Rect)
+        score4 = scores_font.render(high_scores[3] + " : " + names[3], True, (255, 255, 255))
+        score4Rect = score4.get_rect()
+        score4Rect.centerx = screen.get_rect().centerx
+        score4Rect.centery = 400
+        screen.blit(score4, score4Rect)
+        score5 = scores_font.render(high_scores[4] + " : " + names[4], True, (255, 255, 255))
+        score5Rect = score1.get_rect()
+        score5Rect.centerx = screen.get_rect().centerx
+        score5Rect.centery = 450
+        screen.blit(score5, score5Rect)
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
