@@ -1,6 +1,7 @@
 import math
 import random
 import csv
+import operator
 
 import pygame
 from pygame import mixer
@@ -65,6 +66,16 @@ level_up_value = ""
 font = pygame.font.Font('freesansbold.ttf', 20)
 game_over = False
 
+high_scores = []
+names = []
+
+with open('high_scores.csv') as csvfile:
+    reader = csv.reader(csvfile)
+    sortedlist = sorted(reader, key=operator.itemgetter(1), reverse=True)
+    for i in sortedlist:
+        names.append(i[0])
+        high_scores.append(i[1])
+
 scoreX = 10
 scoreY = 10
 levelX = 10
@@ -107,7 +118,6 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
     else:
         return False
 
-
 # Added functions
 
 def show_level(x, y):
@@ -117,7 +127,6 @@ def show_level(x, y):
 def level_up_text(x, y):
     level_text = font.render(level_up_value, True,  (255, 255, 0))
     screen.blit(level_text, (x, y))
-
 
 # Pause Loop
 
@@ -158,6 +167,16 @@ def show_pause():
 
 def show_high_scores_menu():
     high_scores_menu = True
+    global high_scores, names
+    high_scores.clear()
+    names.clear()
+    with open('high_scores.csv') as csvfile:
+        reader = csv.reader(csvfile)
+        sortedlist = sorted(reader, key=operator.itemgetter(1), reverse=True)
+        for i in sortedlist:
+            names.append(i[0])
+            high_scores.append(i[1])
+
     while high_scores_menu:
         # RGB = Red, Green, Blue
         screen.fill((0, 0, 0))
@@ -169,36 +188,27 @@ def show_high_scores_menu():
         highRect.centery = 100
         screen.blit(high_title, highRect)
 
-        high_scores = []
-        names = []
-
-        with open('high_scores.csv') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                high_scores.append(row[0])
-                names.append(row[1])
-        
-        score1 = scores_font.render(high_scores[0] + " : " + names[0], True, (255, 255, 255))
+        score1 = scores_font.render(names[0] + " : " + str(high_scores[0]), True, (255, 255, 255))
         score1Rect = score1.get_rect()
         score1Rect.centerx = screen.get_rect().centerx
         score1Rect.centery = 250
         screen.blit(score1, score1Rect)
-        score2 = scores_font.render(high_scores[1] + " : " + names[1], True, (255, 255, 255))
+        score2 = scores_font.render(names[1] + " : " + str(high_scores[1]), True, (255, 255, 255))
         score2Rect = score1.get_rect()
         score2Rect.centerx = screen.get_rect().centerx
         score2Rect.centery = 300
         screen.blit(score2, score2Rect)
-        score3 = scores_font.render(high_scores[2] + " : " + names[2], True, (255, 255, 255))
+        score3 = scores_font.render(names[2] + " : " + str(high_scores[2]), True, (255, 255, 255))
         score3Rect = score3.get_rect()
         score3Rect.centerx = screen.get_rect().centerx
         score3Rect.centery = 350
         screen.blit(score3, score3Rect)
-        score4 = scores_font.render(high_scores[3] + " : " + names[3], True, (255, 255, 255))
+        score4 = scores_font.render(names[3] + " : " + str(high_scores[3]), True, (255, 255, 255))
         score4Rect = score4.get_rect()
         score4Rect.centerx = screen.get_rect().centerx
         score4Rect.centery = 400
         screen.blit(score4, score4Rect)
-        score5 = scores_font.render(high_scores[4] + " : " + names[4], True, (255, 255, 255))
+        score5 = scores_font.render(names[4] + " : " + str(high_scores[4]), True, (255, 255, 255))
         score5Rect = score1.get_rect()
         score5Rect.centerx = screen.get_rect().centerx
         score5Rect.centery = 450
@@ -212,6 +222,58 @@ def show_high_scores_menu():
                     break
 
         pygame.display.update()
+
+def save_high_scores():
+    # RGB = Red, Green, Blue
+    screen.fill((0, 0, 0))
+    # Background Image
+    screen.blit(background, (0, 0))
+
+    name = ""
+    while len(name) < 3:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.unicode.isalpha():
+                    name += event.unicode
+                elif event.key == pygame.K_BACKSPACE:
+                    name = name[:-1]
+            
+        name = name.upper()
+        screen.fill((0, 0, 0))
+        screen.blit(background, (0, 0))
+        high_title = menu_font.render("High Score!", True,  (255, 255, 0))
+        highRect = high_title.get_rect()
+        highRect.centerx = screen.get_rect().centerx
+        highRect.centery = 100
+        screen.blit(high_title, highRect)
+        
+        inpt = font.render("Enter a 3-letter name", True,  (255, 255, 255))
+        inptRect = inpt.get_rect()
+        inptRect.centerx = screen.get_rect().centerx
+        inptRect.centery = 200
+        screen.blit(inpt, inptRect)
+        namedisplay = menu_font.render(name, True, (255, 255, 255))
+        namedisplayRect = namedisplay.get_rect()
+        namedisplayRect.center = screen.get_rect().center
+        screen.blit(namedisplay, namedisplayRect)
+        pygame.display.update()
+
+    #replace lowest 
+    lowest = high_scores[0]
+    lowest_index = 0
+    for i in range(len(high_scores)):
+        if high_scores[i] <= lowest:
+            lowest = high_scores[i]
+            lowest_index = i
+    high_scores[lowest_index] = score_value
+    names[lowest_index] = name
+
+    with open('high_scores.csv', 'w',newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for i in range(len(names)):
+                writer.writerow([str(names[i]), str(high_scores[i])])
+
+    show_high_scores_menu()
 
 
 # Game Loop
@@ -291,6 +353,8 @@ while running:
             for j in range(num_of_enemies):
                 enemyY[j] = 2000
             game_over_text()
+            if score_value >= int(high_scores[4]):
+                save_high_scores()
             break
         
         enemyX[i] += enemyX_change[i]
